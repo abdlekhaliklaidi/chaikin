@@ -6,12 +6,30 @@ struct Point {
     y: f32,
 }
 
-fn chaikin_step(points: Vec<Point>) -> Vec<Point> {
+fn chaikin(points: Vec<Point>) -> Vec<Point> {
     // q = 3/4 * p1 + 1/4 * p2  (1/4 point)
     // r = 1/4 * p1 + 3/4 * p2  (3/4 point)
-    // let res  = Vec::new();
+    let mut res = Vec::new();
 
-    points
+    for i in 0..points.len() - 1 {
+        let p1 = points[i];
+        let p2 = points[i + 1];
+
+        let new_q = Point {
+            x: 0.75 * p1.x + 0.25 * p2.y,
+            y: 0.75 * p1.x + 0.25 * p2.y,
+        };
+
+        let new_r = Point {
+            x: 0.25 * p1.x + 0.75 * p2.y,
+            y: 0.25 * p1.x + 0.75 * p2.y,
+        };
+
+        res.push(new_q);
+        res.push(new_r);
+    }
+
+    res
 }
 
 fn window_conf() -> Conf {
@@ -34,10 +52,13 @@ async fn main() {
         }
         clear_background(BLACK);
 
-        for point in &points{
+
+        
+
+
+        for point in &points {
             draw_circle(point.x, point.y, 3.0, WHITE);
         }
-
 
         next_frame().await;
     }
