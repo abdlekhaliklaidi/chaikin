@@ -1,12 +1,6 @@
 use macroquad::prelude::*;
 
-#[derive(Clone, Copy)]
-struct Point {
-    x: f32,
-    y: f32,
-}
-
-fn chaikin(points: Vec<Point>) -> Vec<Point> {
+fn chaikin(points: &Vec<(f32,f32)>) -> Vec<(f32, f32)> {
     // q = 3/4 * p1 + 1/4 * p2  (1/4 point)
     // r = 1/4 * p1 + 3/4 * p2  (3/4 point)
     let mut res = Vec::new();
@@ -15,18 +9,21 @@ fn chaikin(points: Vec<Point>) -> Vec<Point> {
         let p1 = points[i];
         let p2 = points[i + 1];
 
-        let new_q = Point {
-            x: 0.75 * p1.x + 0.25 * p2.y,
-            y: 0.75 * p1.x + 0.25 * p2.y,
-        };
+        let new_qx = 0.75 * p1.0 + 0.25 * p2.0;
+        let new_qy = 0.75 * p1.1 + 0.25 * p2.1;
 
-        let new_r = Point {
-            x: 0.25 * p1.x + 0.75 * p2.y,
-            y: 0.25 * p1.x + 0.75 * p2.y,
-        };
 
-        res.push(new_q);
-        res.push(new_r);
+        let new_rx = 0.25 * p1.0 + 0.75 * p2.0;
+        let new_ry = 0.25 * p1.1 + 0.75 * p2.1;
+        
+
+        // let new_r = Point {
+        //     x: 0.25 * p1.x + 0.75 * p2.y,
+        //     y: 0.25 * p1.x + 0.75 * p2.y,
+        // };
+
+        res.push((new_qx, new_qy));
+        res.push((new_rx, new_ry));
     }
 
     res
@@ -43,21 +40,37 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let mut points: Vec<Point> = vec![];
+    let mut points= vec![];
 
+    let mut is_start = false;
+    let mut c = 0;
     loop {
-        if is_mouse_button_pressed(MouseButton::Left) {
-            let (m_x, m_y) = mouse_position();
-            points.push(Point { x: (m_x), y: (m_y) });
-        }
         clear_background(BLACK);
-
-
-        
-
+        if is_mouse_button_pressed(MouseButton::Left) && !is_start {
+            // let (m_x, m_y) = mouse_position();
+            points.push(mouse_position());
+        }
 
         for point in &points {
-            draw_circle(point.x, point.y, 3.0, WHITE);
+            draw_circle(point.0, point.1, 3.0, WHITE);
+        }
+
+        if is_key_pressed(KeyCode::Enter) && points.len() >= 2 {
+            is_start = true;
+        }
+
+        if is_start {
+            for i in 0..points.len() - 1 {
+                c += 1;
+                let p1 = points[i];
+                let p2 = points[i + 1];
+
+                draw_line(p1.0, p1.1, p2.0, p2.1, 2.0, GREEN);
+            }
+
+            if c <= 7 {
+                points = chaikin(&points);
+            }
         }
 
         next_frame().await;
