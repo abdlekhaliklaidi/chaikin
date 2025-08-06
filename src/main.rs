@@ -7,7 +7,7 @@ fn chaikin(points: &Vec<(f32, f32)>) -> Vec<(f32, f32)> {
     // q = 3/4 * p1 + 1/4 * p2  (1/4 point)
     // r = 1/4 * p1 + 3/4 * p2  (3/4 point)
     let mut res = Vec::new();
-
+    res.push(points[0]);
     for i in 0..points.len() - 1 {
         let p1 = points[i];
         let p2 = points[i + 1];
@@ -26,7 +26,7 @@ fn chaikin(points: &Vec<(f32, f32)>) -> Vec<(f32, f32)> {
         res.push((new_qx, new_qy));
         res.push((new_rx, new_ry));
     }
-
+    res.push(points[points.len() - 1]);
     res
 }
 
@@ -52,7 +52,7 @@ async fn main() {
         if is_mouse_button_pressed(MouseButton::Left) && !is_start {
             // let (m_x, m_y) = mouse_position();
             points.push(mouse_position());
-            original = points.clone();
+            original.push(mouse_position());
         }
         for point in &original {
             draw_circle_lines(point.0, point.1, 3.0, 1.0, WHITE);
