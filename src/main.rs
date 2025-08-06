@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 use std::thread;
 use std::time::Duration;
 
+
 fn chaikin(points: &Vec<(f32, f32)>) -> Vec<(f32, f32)> {
     // q = 3/4 * p1 + 1/4 * p2  (1/4 point)
     // r = 1/4 * p1 + 3/4 * p2  (3/4 point)
@@ -44,6 +45,7 @@ async fn main() {
     let mut original = vec![];
 
     let mut is_start = false;
+    let mut show_warning = false;
     let mut c = 0;
     loop {
         clear_background(BLACK);
@@ -53,17 +55,40 @@ async fn main() {
             original = points.clone();
         }
         for point in &original {
-            draw_circle(point.0, point.1, 3.0, WHITE);
+            draw_circle_lines(point.0, point.1, 3.0, 1.0, WHITE);
         }
         // for point in &points {
         //     draw_circle(point.0, point.1, 3.0, WHITE);
         // }
-
+     
         if is_key_pressed(KeyCode::Enter) && points.len() >= 2 && !is_start {
             // Start the Chaikin algorithm
             is_start = true;
             original = points.clone();
+            show_warning = false; 
+        } else if is_key_pressed(KeyCode::Enter) && points.len() < 2 && !is_start {
+            show_warning = true;
         }
+
+        if points.len() == 2 && !is_start{
+            show_warning = false;
+        }
+
+        if show_warning {
+             draw_text("Put at least two points!", 20.0, 20.0, 30.0, RED);
+        }
+        
+        if is_key_pressed(KeyCode::Escape) {
+            break;
+        }
+
+        if is_key_pressed(KeyCode::C) {
+        points.clear();
+        original.clear();
+        is_start = false;
+        c = 0;
+        }
+
 
         if is_start {
             for i in 0..points.len() - 1 {
